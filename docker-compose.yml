@@ -1,0 +1,29 @@
+version: '3.7'
+
+volumes:
+  pgdata:
+    driver: local
+
+services:
+  db:
+    image: postgres:13.1-alpine
+    command: -c 'max_connections=500'
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  web:
+    build: .
+    volumes:
+      - type: bind
+        source: .
+        target: /app
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db
+    command:
+      - ./run.sh
